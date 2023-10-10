@@ -1,8 +1,8 @@
+import 'package:exploreden_admin/services/database.dart';
 import 'package:exploreden_admin/utils/buttons.dart';
 import 'package:exploreden_admin/utils/colors.dart';
 import 'package:exploreden_admin/utils/controllers.dart';
 import 'package:exploreden_admin/widgets/input_text_form.dart';
-import 'package:exploreden_admin/widgets/side_bar.dart';
 import 'package:flutter/material.dart';
 
 class AddLocations extends StatefulWidget {
@@ -126,10 +126,7 @@ class _AddLocationsState extends State<AddLocations> {
                             fontWeight: FontWeight.w500,
                             fontSize: 16),
                       ),
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (builder) => SideDrawer()));
-                },
+                onPressed: onCreate,
               ),
               const SizedBox(height: 30),
             ],
@@ -137,5 +134,43 @@ class _AddLocationsState extends State<AddLocations> {
         ),
       ),
     );
+  }
+
+  void onCreate() async {
+    //Area
+
+    if (nameController.text.isEmpty &&
+        addressController.text.isEmpty &&
+        locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("All Fields are required")));
+    } else if (nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("name address is required")));
+    } else if (addressController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("address of the location is required")));
+    } else if (locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("location is required")));
+    } else {
+      setState(() {
+        _isLoading = true;
+      });
+      String rse = await Database().addLocation(
+        address: addressController.text,
+        location: locationController.text,
+        name: nameController.text,
+      );
+
+      print(rse);
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Conguration Location is Added")));
+      Navigator.pop(context);
+    }
   }
 }
