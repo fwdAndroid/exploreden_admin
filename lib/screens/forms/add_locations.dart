@@ -1,5 +1,6 @@
 import 'package:exploreden_admin/utils/buttons.dart';
 import 'package:exploreden_admin/utils/colors.dart';
+import 'package:exploreden_admin/utils/controllers.dart';
 import 'package:exploreden_admin/widgets/input_text_form.dart';
 import 'package:exploreden_admin/widgets/side_bar.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,6 @@ class AddLocations extends StatefulWidget {
 }
 
 class _AddLocationsState extends State<AddLocations> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController passController = TextEditingController();
-  TextEditingController _nameController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -60,7 +58,7 @@ class _AddLocationsState extends State<AddLocations> {
               ),
               const SizedBox(height: 9),
               InputText(
-                controller: _nameController,
+                controller: nameController,
                 labelText: "Enter Location Name",
                 keyboardType: TextInputType.visiblePassword,
                 onChanged: (value) {},
@@ -79,7 +77,7 @@ class _AddLocationsState extends State<AddLocations> {
               ),
               const SizedBox(height: 9),
               InputText(
-                controller: _emailController,
+                controller: addressController,
                 labelText: "Enter Location Address",
                 keyboardType: TextInputType.visiblePassword,
                 onChanged: (value) {},
@@ -98,7 +96,7 @@ class _AddLocationsState extends State<AddLocations> {
               ),
               const SizedBox(height: 9),
               InputText(
-                controller: _emailController,
+                controller: locationController,
                 labelText: "Enter Location Detail",
                 keyboardType: TextInputType.visiblePassword,
                 onChanged: (value) {},
