@@ -1,130 +1,188 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exploreden_admin/modals/user_models.dart';
+import 'package:exploreden_admin/screens/datasource/user_data_source.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-/// The home page of the application which hosts the datagrid.
 class UserScreen extends StatefulWidget {
-  /// Creates the home page.
-  UserScreen({Key? key}) : super(key: key);
+  const UserScreen({super.key});
 
   @override
-  _UserScreenState createState() => _UserScreenState();
+  State<UserScreen> createState() => _UserScreenState();
 }
 
 class _UserScreenState extends State<UserScreen> {
-  List<Employee> employees = <Employee>[];
-  late EmployeeDataSource employeeDataSource;
-
+  TextEditingController controller = TextEditingController();
+  bool isShowUser = false;
   @override
-  void initState() {
-    super.initState();
-    employees = getEmployeeData();
-    employeeDataSource = EmployeeDataSource(employeeData: employees);
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SfDataGrid(
-        source: employeeDataSource,
-        columnWidthMode: ColumnWidthMode.fill,
-        columns: <GridColumn>[
-          GridColumn(
-              columnName: 'id',
-              label: Container(
-                  padding: EdgeInsets.all(16.0),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Email',
-                  ))),
-          GridColumn(
-              columnName: 'Full Name',
-              label: Container(
-                  padding: EdgeInsets.all(8.0),
-                  alignment: Alignment.center,
-                  child: Text('Name'))),
-          GridColumn(
-              columnName: 'designation',
-              label: Container(
-                  padding: EdgeInsets.all(8.0),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Phone Number',
-                    overflow: TextOverflow.ellipsis,
-                  ))),
-          GridColumn(
-              columnName: 'salary',
-              label: Container(
-                  padding: EdgeInsets.all(8.0),
-                  alignment: Alignment.center,
-                  child: Text('DOB'))),
-        ],
+      appBar: AppBar(
+          leading: Image.asset("assets/owl.png"),
+          elevation: 0,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    isShowUser = true;
+                  });
+                },
+                icon: Icon(Icons.search))
+          ],
+          iconTheme: IconThemeData(color: Colors.black),
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          title: TextFormField(
+            controller: controller,
+            decoration: InputDecoration(label: Text('Search By Name')),
+            onFieldSubmitted: (_) {
+              setState(() {
+                isShowUser = true;
+              });
+            },
+          )),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 670,
+              child: isShowUser
+                  ? StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection("users")
+                          .where("name",
+                              isGreaterThanOrEqualTo: controller.text)
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Text('Loading...');
+                        }
+
+                        List<DocumentSnapshot> documents = snapshot.data!.docs;
+                        return ListView.builder(
+                          itemCount: documents.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ListTile(
+                              onTap: () {},
+                              title: Text(documents[index]['name']),
+                              subtitle: Text(documents[index]['email']),
+                            );
+                          },
+                        );
+                      },
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: _buildDataGrid(),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  List<Employee> getEmployeeData() {
-    return [
-      Employee(
-          "fwdkaleem@gmail.com", 'James', '+9214121241', "23 December 2000"),
-      Employee("fwd@gmail.com", 'Kathryn', '+921213213', "3 December 1992"),
-      Employee("kaleem@gmail.com", 'Lara', '+912312313', "23 December 2010"),
-      Employee("suleman@gmail.com", 'Michael', '+213124214', "23 January 2000"),
-      Employee("alex@gmail.com", 'Martin', '+212312312', "23 March 1999"),
-      Employee("qasim@gmail.com", 'Newberry', '+!23124214', "23 June 2005"),
-      Employee("Ads@gmail.com", 'Balnc', '+213155325', "23 December 2000"),
-    ];
-  }
-}
+  late UserDataSource employeeDataSource;
+  List<Models> employeeData = [];
 
-/// Custom business object class which contains properties to hold the detailed
-/// information about the employee which will be rendered in datagrid.
-class Employee {
-  /// Creates the employee class with required details.
-  Employee(this.id, this.name, this.designation, this.salary);
+  final getDataFromFireStore =
+      FirebaseFirestore.instance.collection('users').snapshots();
+  Widget _buildDataGrid() {
+    return StreamBuilder(
+      stream: getDataFromFireStore,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+              child: LoadingAnimationWidget.hexagonDots(
+                  color: Colors.blue, size: 200));
+        }
+        if (snapshot.hasData) {
+          if (employeeData.isNotEmpty) {
+            getDataGridRowFromDataBase(DocumentChange<Object?> data) {
+              return DataGridRow(cells: [
+                DataGridCell<String>(
+                    columnName: 'name', value: data.doc['name']),
+                DataGridCell<String>(
+                    columnName: 'email', value: data.doc['email']),
+                DataGridCell<String>(
+                    columnName: 'photoURL', value: data.doc['photoURL']),
+                DataGridCell<String>(
+                    columnName: 'phoneNumber', value: data.doc['phoneNumber']),
+              ]);
+            }
 
-  /// Id of an employee.
-  final String id;
+            for (var data in snapshot.data!.docChanges) {
+              if (data.type == DocumentChangeType.modified) {
+                if (data.oldIndex == data.newIndex) {
+                  employeeDataSource.dataGridRows[data.oldIndex] =
+                      getDataGridRowFromDataBase(data);
+                }
+                employeeDataSource.updateDataGridSource();
+              } else if (data.type == DocumentChangeType.added) {
+                employeeDataSource.dataGridRows
+                    .add(getDataGridRowFromDataBase(data));
+                employeeDataSource.updateDataGridSource();
+              } else if (data.type == DocumentChangeType.removed) {
+                employeeDataSource.dataGridRows.removeAt(data.oldIndex);
+                employeeDataSource.updateDataGridSource();
+              }
+            }
+          } else {
+            for (var data in snapshot.data!.docs) {
+              employeeData.add(Models(
+                uid: data['uid'],
+                photoURL: data['photoURL'],
+                name: data['name'],
+                email: data['email'],
+                phoneNumber: data['phoneNumber'],
+              ));
+            }
+            employeeDataSource = UserDataSource(employeeData);
+          }
 
-  /// Name of an employee.
-  final String name;
-
-  /// Designation of an employee.
-  final String designation;
-
-  /// Salary of an employee.
-  final String salary;
-}
-
-/// An object to set the employee collection data source to the datagrid. This
-/// is used to map the employee data to the datagrid widget.
-class EmployeeDataSource extends DataGridSource {
-  /// Creates the employee data source class with required details.
-  EmployeeDataSource({required List<Employee> employeeData}) {
-    _employeeData = employeeData
-        .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<String>(columnName: 'id', value: e.id),
-              DataGridCell<String>(columnName: 'name', value: e.name),
-              DataGridCell<String>(
-                  columnName: 'designation', value: e.designation),
-              DataGridCell<String>(columnName: 'salary', value: e.salary),
-            ]))
-        .toList();
-  }
-
-  List<DataGridRow> _employeeData = [];
-
-  @override
-  List<DataGridRow> get rows => _employeeData;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((e) {
-      return Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(8.0),
-        child: Text(e.value.toString()),
-      );
-    }).toList());
+          return Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: SfDataGrid(
+              allowFiltering: true,
+              allowSorting: true,
+              allowSwiping: true,
+              source: employeeDataSource,
+              columns: getColumnsBusiness,
+              columnWidthMode: ColumnWidthMode.fill,
+              onCellTap: (details) {
+                if (details.rowColumnIndex.rowIndex != 0) {
+                  final DataGridRow row = employeeDataSource
+                      .effectiveRows[details.rowColumnIndex.rowIndex - 1];
+                  int index = employeeDataSource.dataGridRows.indexOf(row);
+                  var data = snapshot.data!.docs[index];
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //     builder: (context) => BusinessView(data: data)));
+                }
+              },
+            ),
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
   }
 }
