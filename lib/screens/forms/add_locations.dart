@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:exploreden_admin/services/database.dart';
 import 'package:exploreden_admin/utils/buttons.dart';
 import 'package:exploreden_admin/utils/colors.dart';
 import 'package:exploreden_admin/utils/controllers.dart';
+import 'package:exploreden_admin/utils/pick_image.dart';
 import 'package:exploreden_admin/widgets/input_text_form.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddLocations extends StatefulWidget {
   AddLocations({super.key});
@@ -14,6 +18,7 @@ class AddLocations extends StatefulWidget {
 
 class _AddLocationsState extends State<AddLocations> {
   bool _isLoading = false;
+  Uint8List? _image;
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +45,26 @@ class _AddLocationsState extends State<AddLocations> {
               SizedBox(
                 height: 10,
               ),
-              Image.asset(
-                "assets/owl.png",
-                height: 200,
+              Stack(
+                children: [
+                  _image != null
+                      ? CircleAvatar(
+                          radius: 59, backgroundImage: MemoryImage(_image!))
+                      : CircleAvatar(
+                          radius: 59,
+                          backgroundImage: NetworkImage(
+                              'https://static.remove.bg/remove-bg-web/a6eefcd21dff1bbc2448264c32f7b48d7380cb17/assets/start_remove-c851bdf8d3127a24e2d137a55b1b427378cd17385b01aec6e59d5d4b5f39d2ec.png'),
+                        ),
+                  Positioned(
+                      bottom: -10,
+                      left: 70,
+                      child: IconButton(
+                          onPressed: () => selectImage(),
+                          icon: Icon(
+                            Icons.add_a_photo,
+                            color: Colors.black,
+                          )))
+                ],
               ),
               SizedBox(
                 height: 20,
@@ -136,6 +158,13 @@ class _AddLocationsState extends State<AddLocations> {
     );
   }
 
+  selectImage() async {
+    Uint8List ui = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = ui;
+    });
+  }
+
   void onCreate() async {
     //Area
 
@@ -158,6 +187,7 @@ class _AddLocationsState extends State<AddLocations> {
         _isLoading = true;
       });
       String rse = await Database().addLocation(
+        file: _image!,
         address: addressController.text,
         location: locationController.text,
         name: nameController.text,
