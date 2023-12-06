@@ -4,7 +4,6 @@ class LocationModel {
   String uuid;
   String location;
   String address;
-  String photoURL;
   String name;
 
   LocationModel({
@@ -12,7 +11,6 @@ class LocationModel {
     required this.location,
     required this.address,
     required this.name,
-    required this.photoURL,
   });
 
   ///Converting OBject into Json Object
@@ -21,7 +19,6 @@ class LocationModel {
         'uuid': uuid,
         'address': address,
         'location': location,
-        'photoURL': photoURL,
       };
 
   ///
@@ -31,7 +28,6 @@ class LocationModel {
     return LocationModel(
       name: snapshot['name'],
       uuid: snapshot['uuid'],
-      photoURL: snapshot['photoURL'],
       address: snapshot['address'],
       location: snapshot['location'],
     );

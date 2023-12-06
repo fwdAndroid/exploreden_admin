@@ -6,25 +6,25 @@ import 'package:exploreden_admin/services/storage.dart';
 import 'package:uuid/uuid.dart';
 
 class Database {
-  Future<String> addLocation(
-      {required String name,
-      required String location,
-      required String address,
-      required Uint8List file}) async {
+  Future<String> addLocation({
+    required String name,
+    required String location,
+    required String address,
+  }) async {
     String res = 'Some error occured';
     var uuid = Uuid().v4();
 
     try {
       if (name.isNotEmpty || location.isNotEmpty) {
-        //Add User to the database with modal
-        String photoURL = await StorageMethods()
-            .uploadImageToStorage('ProfilePics', file, false);
+        // //Add User to the database with modal
+        // String photoURL = await StorageMethods()
+        //     .uploadImageToStorage('ProfilePics', file, false);
         LocationModel userModel = LocationModel(
-            location: location,
-            address: address,
-            name: name,
-            uuid: uuid,
-            photoURL: photoURL);
+          location: location,
+          address: address,
+          name: name,
+          uuid: uuid,
+        );
         await FirebaseFirestore.instance
             .collection('location')
             .doc(uuid)

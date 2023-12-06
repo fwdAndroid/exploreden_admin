@@ -154,7 +154,6 @@ class _LocationScreenState extends State<LocationScreen> {
           } else {
             for (var data in snapshot.data!.docs) {
               employeeData.add(LocationModel(
-                photoURL: data['photoURL'],
                 uuid: data['uuid'],
                 name: data['name'],
                 address: data['address'],
