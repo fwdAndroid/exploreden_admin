@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exploreden_admin/modals/user_models.dart';
 import 'package:exploreden_admin/screens/datasource/user_data_source.dart';
+import 'package:exploreden_admin/screens/views/user_view.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -171,8 +172,9 @@ class _UserScreenState extends State<UserScreen> {
                       .effectiveRows[details.rowColumnIndex.rowIndex - 1];
                   int index = employeeDataSource.dataGridRows.indexOf(row);
                   var data = snapshot.data!.docs[index];
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //     builder: (context) => BusinessView(data: data)));
+
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => UserView(data: data)));
                 }
               },
             ),
