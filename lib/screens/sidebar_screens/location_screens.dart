@@ -67,7 +67,7 @@ class _LocationScreenState extends State<LocationScreen> {
               child: isShowUser
                   ? StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collection("location")
+                          .collection("locations")
                           .where("name",
                               isGreaterThanOrEqualTo: controller.text)
                           .snapshots(),
@@ -90,8 +90,9 @@ class _LocationScreenState extends State<LocationScreen> {
                               onTap: () {
                                 var data = snapshot.data!.docs[index];
                               },
-                              title: Text(documents[index]['name']),
-                              subtitle: Text(documents[index]['address']),
+                              title: Text(documents[index]['locationName']),
+                              subtitle:
+                                  Text(documents[index]['locationAddress']),
                             );
                           },
                         );
@@ -112,7 +113,7 @@ class _LocationScreenState extends State<LocationScreen> {
   List<LocationModel> employeeData = [];
 
   final getDataFromFireStore =
-      FirebaseFirestore.instance.collection('location').snapshots();
+      FirebaseFirestore.instance.collection('locations').snapshots();
   Widget _buildDataGrid() {
     return StreamBuilder(
       stream: getDataFromFireStore,
@@ -127,11 +128,23 @@ class _LocationScreenState extends State<LocationScreen> {
             getDataGridRowFromDataBase(DocumentChange<Object?> data) {
               return DataGridRow(cells: [
                 DataGridCell<String>(
-                    columnName: 'name', value: data.doc['name']),
+                    columnName: 'locationName',
+                    value: data.doc['locationName']),
                 DataGridCell<String>(
-                    columnName: 'address', value: data.doc['address']),
+                    columnName: 'locationAddress',
+                    value: data.doc['locationAddress']),
                 DataGridCell<String>(
-                    columnName: 'location', value: data.doc['location']),
+                    columnName: 'locationRating',
+                    value: data.doc['locationRating']),
+                DataGridCell<String>(
+                    columnName: 'locationPhoto',
+                    value: data.doc['locationPhoto']),
+                DataGridCell<String>(
+                    columnName: 'locationOpeningHrs',
+                    value: data.doc['locationOpeningHrs']),
+                DataGridCell<String>(
+                    columnName: 'locationDescription',
+                    value: data.doc['locationDescription']),
               ]);
             }
 
@@ -154,10 +167,12 @@ class _LocationScreenState extends State<LocationScreen> {
           } else {
             for (var data in snapshot.data!.docs) {
               employeeData.add(LocationModel(
-                uuid: data['uuid'],
-                name: data['name'],
-                address: data['address'],
-                location: data['location'],
+                locationPhoto: data['locationPhoto'],
+                locationOpeningHrs: data['locationOpeningHrs'],
+                locationRating: data['locationRating'],
+                locationName: data['locationName'],
+                locationAddress: data['locationAddress'],
+                locationDescription: data['locationDescription'],
               ));
             }
             employeeDataSource = LocationDataSource(employeeData);

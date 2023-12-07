@@ -14,9 +14,13 @@ class LocationDataSource extends DataGridSource {
   void _buildDataRow() {
     dataGridRows = employeeData
         .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<String>(columnName: 'name', value: e.name),
-              DataGridCell<String>(columnName: 'address', value: e.address),
-              DataGridCell<String>(columnName: 'location', value: e.location),
+              DataGridCell<String>(
+                  columnName: 'locationName', value: e.locationName),
+              DataGridCell<String>(
+                  columnName: 'locationAddress', value: e.locationAddress),
+              DataGridCell<String>(
+                  columnName: 'locationDescription',
+                  value: e.locationDescription),
             ]))
         .toList();
   }
@@ -46,13 +50,13 @@ class LocationDataSource extends DataGridSource {
 List<GridColumn> get getColumnsBusiness {
   return <GridColumn>[
     GridColumn(
-        columnName: 'name',
+        columnName: 'locationName',
         label: Container(
             padding: const EdgeInsets.all(8.0),
             alignment: Alignment.center,
             child: const Text('Name'))),
     GridColumn(
-        columnName: 'address',
+        columnName: 'locationAddress',
         label: Container(
             padding: const EdgeInsets.all(8.0),
             alignment: Alignment.center,
@@ -61,7 +65,7 @@ List<GridColumn> get getColumnsBusiness {
               overflow: TextOverflow.ellipsis,
             ))),
     GridColumn(
-        columnName: 'location',
+        columnName: 'locationDescription',
         label: Container(
             padding: const EdgeInsets.all(8.0),
             alignment: Alignment.center,
