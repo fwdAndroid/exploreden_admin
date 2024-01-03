@@ -43,24 +43,27 @@ class _AddLocationsState extends State<AddLocations> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: _eventPhoto != null
-                      ? InkWell(
-                          onTap: selectImage,
-                          child: Image.memory(
-                            _eventPhoto!,
-                            width: 335,
-                            height: 100,
-                            fit: BoxFit.fitHeight,
+                Stack(
+                  children: [
+                    _eventPhoto != null
+                        ? CircleAvatar(
+                            radius: 59,
+                            backgroundImage: MemoryImage(_eventPhoto!))
+                        : CircleAvatar(
+                            radius: 59,
+                            backgroundImage: NetworkImage(
+                                'https://static.remove.bg/remove-bg-web/a6eefcd21dff1bbc2448264c32f7b48d7380cb17/assets/start_remove-c851bdf8d3127a24e2d137a55b1b427378cd17385b01aec6e59d5d4b5f39d2ec.png'),
                           ),
-                        )
-                      : InkWell(
-                          onTap: selectImage,
-                          child: Image.asset(
-                            "assets/owl.png",
-                            height: 100,
-                          )),
+                    Positioned(
+                        bottom: -10,
+                        left: 70,
+                        child: IconButton(
+                            onPressed: () => selectImage(),
+                            icon: Icon(
+                              Icons.add_a_photo,
+                              color: Colors.black,
+                            )))
+                  ],
                 ),
                 SizedBox(
                   height: 10,
